@@ -10,9 +10,12 @@ const employeeController=require('./Controller/EmployeeController');
 const customerController=require('./Controller/CutomerController');
 const profitController=require('./Controller/ProfitController');
 const DealController=require('./Controller/DealController');
+const InventryController=require('./Controller/InventryController');
 const expenseController=require('./Controller/ExpensesController');
+const entityController=require('./Controller/EntryController');
 
-mongoose.connect("mongodb+srv://Asad:Asad123@cluster0.nfme4lh.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true , family: 4})
+
+mongoose.connect("mongodb://Asad:Asad123@ac-627oopd-shard-00-00.nfme4lh.mongodb.net:27017,ac-627oopd-shard-00-01.nfme4lh.mongodb.net:27017,ac-627oopd-shard-00-02.nfme4lh.mongodb.net:27017/?ssl=true&replicaSet=atlas-pbnj53-shard-0&authSource=admin&retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true , family: 4})
 .then(() => {
   console.log('Connected to MongoDB');
   // Additional code here if needed
@@ -112,6 +115,30 @@ router.put('/api/deals/:id', DealController.updateDeal);
 
 // Delete a Deal by ID
 router.delete('/api/deals/:id', DealController.deleteDeal);
+
+
+
+router.post('/api/AddInventry',upload.single("image"), InventryController.createInventry);
+
+// Get a list of all Deals
+router.get('/api/Inventry', InventryController.getAllInventry);
+
+// Get a single Deal by ID
+router.get('/api/Inventry/:id', InventryController.getInventryById);
+
+// Update a Deal by ID
+router.put('/api/Inventry/:id', InventryController.updateInventry);
+
+// Delete a Deal by ID
+router.delete('/api/Inventry/:id', InventryController.deleteInventry);
+
+
+router.post('/api/AddEntity', upload.single("image"), entityController.createEntity);
+
+// Get all entities
+router.get('/api/Entity', entityController.getAllEntities);
+
+
 
 
 const port = process.env.PORT || 3000;

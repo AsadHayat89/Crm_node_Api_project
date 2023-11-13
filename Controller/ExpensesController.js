@@ -4,15 +4,78 @@ const Expense = require('../Model/Expenses');
 // Create Expense
 exports.createExpense = async (req, res) => {
     try {
-        console.log("reach here");
-        const expense = new Expense(req.body);
-        const result = await expense.save();
-        res.json({status:'success',responce:result});
+        if(req.file){
+            var image = req.file;
+            var outputDirectory = directryPath();
+            new Promise((resolve, reject) => {
+              const ImageName = convertImage(image.originalname);
+              const imagePath = path.join(outputDirectory, ImageName);
+        
+              fs.writeFileSync(imagePath, image.buffer, function (err) {
+                reject(err)
+              });
+        
+              resolve(ImageName)
+            }).then(
+              ImageName => {
+                req.body.image = ImageName;
+                const expense = new Expense(req.body);
+                const result =  expense.save().then(
+                  result=>{
+                      if(result){
+                        res.status(200).json({status:"success",responce:result});
+                    
+                        
+                      }
+                      else{
+                        res.status(400).json({status:"error",error:"Data inserted failed"});
+                      }
+                  }
+                );
+                    
+              }
+            );
+        }
+        else{
+            console.log("1");
+            res.body.image="";
+            console.log("2");
+            const expense = new Expense(req.body);
+            console.log("3");
+            const result = await expense.save().then(res=>{
+                if(res){
+                    res.json({status:'success',responce:result});
+                }
+                else{
+                    res.json({status:'faile',responce:result});
+                }
+            })
+            
+        }
+        
     } catch (err) {
-        console.log('err '+err);
+        console.log(err.message);
         res.status(500).json({ status:'error', error: err.message });
     }
 };
+
+const directryPath = () => {
+    const outputDirectory = path.join(__dirname, '../images/Expenses');
+    if (!fs.existsSync(outputDirectory)) {
+      fs.mkdirSync(outputDirectory);
+    }
+  
+    return outputDirectory;
+  }
+  
+  const convertImage = (OriginalImage) => {
+    console.log("Image data: " + OriginalImage);
+    var fil = OriginalImage.split('.')
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().replace(/:/g, '-');
+    fil[0] += "-" + formattedDate;
+    return fil[0] + '.' + fil[1];
+  };
 
 // Get total expenses for the current month
 exports.getTotalExpensesForCurrentMonth = async (req, res) => {
