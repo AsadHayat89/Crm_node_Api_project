@@ -15,7 +15,7 @@ const expenseController=require('./Controller/ExpensesController');
 const entityController=require('./Controller/EntryController');
 
 
-mongoose.connect("mongodb://Asad:Asad123@ac-627oopd-shard-00-00.nfme4lh.mongodb.net:27017,ac-627oopd-shard-00-01.nfme4lh.mongodb.net:27017,ac-627oopd-shard-00-02.nfme4lh.mongodb.net:27017/?ssl=true&replicaSet=atlas-pbnj53-shard-0&authSource=admin&retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true , family: 4})
+mongoose.connect("mongodb+srv://Asad:Asad123@cluster0.nfme4lh.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true , family: 4})
 .then(() => {
   console.log('Connected to MongoDB');
   // Additional code here if needed
@@ -91,7 +91,7 @@ router.get('/api/getMonthlyProfit',profitController.getMonthlyProfit);
 router.post('/api/getEmployeeBounusTotal',upload.any(),profitController.getProfitByEmployeeAndDate);
 
 
-router.post('/api/expenses',upload.any(), expenseController.createExpense);
+router.post('/api/expenses',upload.single("image"), expenseController.createExpense);
 
 router.get('/api/expenses/total/current-month', expenseController.getTotalExpensesForCurrentMonth);
 

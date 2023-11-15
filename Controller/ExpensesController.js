@@ -1,16 +1,22 @@
 // controllers/expenseController.js
 const Expense = require('../Model/Expenses');
-
+const path = require('path');
+const fs = require('fs');
 // Create Expense
 exports.createExpense = async (req, res) => {
     try {
+        var images=req.file;
         if(req.file){
             var image = req.file;
+            console.log("1");
             var outputDirectory = directryPath();
+            console.log("2");
             new Promise((resolve, reject) => {
-              const ImageName = convertImage(image.originalname);
-              const imagePath = path.join(outputDirectory, ImageName);
-        
+                console.log("3");
+                const ImageName = convertImage(image.originalname);
+                console.log("4");
+                const imagePath = path.join(outputDirectory, ImageName);
+                console.log("5");
               fs.writeFileSync(imagePath, image.buffer, function (err) {
                 reject(err)
               });
