@@ -8,15 +8,10 @@ exports.createExpense = async (req, res) => {
         var images=req.file;
         if(req.file){
             var image = req.file;
-            console.log("1");
             var outputDirectory = directryPath();
-            console.log("2");
             new Promise((resolve, reject) => {
-                console.log("3");
                 const ImageName = convertImage(image.originalname);
-                console.log("4");
                 const imagePath = path.join(outputDirectory, ImageName);
-                console.log("5");
               fs.writeFileSync(imagePath, image.buffer, function (err) {
                 reject(err)
               });
@@ -43,17 +38,14 @@ exports.createExpense = async (req, res) => {
             );
         }
         else{
-            console.log("1");
-            res.body.image="";
-            console.log("2");
+            req.body.image="";
             const expense = new Expense(req.body);
-            console.log("3");
-            const result = await expense.save().then(res=>{
-                if(res){
-                    res.json({status:'success',responce:result});
+            const result =  expense.save().then(result=>{
+                if(result){
+                    res.status(200).json({status:'success',responce:result});
                 }
                 else{
-                    res.json({status:'faile',responce:result});
+                    res.status(204).json({status:'failed',responce:result});
                 }
             })
             
@@ -85,6 +77,51 @@ const directryPath = () => {
 
 // Get total expenses for the current month
 exports.getTotalExpensesForCurrentMonth = async (req, res) => {
+    try {
+        // Extract month and year from the request
+        const { month, year } = req.body;
+
+        // Validate that month and year are provided
+        if (!month || !year) {
+            return res.status(400).json({ status: "error", error: "Month and year are required." });
+        }
+
+        // Construct start and end dates for the specified month and year
+        const startOfMonth = new Date(year, month - 1, 1);
+        const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+
+        // Query the database for expenses within the specified month and year
+        const totalExpenses = await Expense.aggregate([
+            {
+                $match: {
+                    date: {
+                        $gte: startOfMonth,
+                        $lte: endOfMonth
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null, // Group by a specific field, you can change it to another field in your schema
+                    expenses: {
+                        $push: "$$ROOT" // Use $$ROOT to include the entire document in the expenses array
+                    }
+                }
+            }
+        ]);
+
+        // Respond with the total expenses or 0 if no expenses found
+        if (totalExpenses.length > 0) {
+            res.json({ status: "success", response: totalExpenses });
+        } else {
+            res.json({ status: "success", response: { totalExpenses: [] } });
+        }
+    } catch (err) {
+        res.status(500).json({ status: "error", error: err.message });
+    }
+};
+// Get total expenses for the current month
+exports.getTotalCurrencyForMonth = async (req, res) => {
     try {
         const currentDate = new Date();
         const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -120,7 +157,6 @@ exports.getTotalExpensesForCurrentMonth = async (req, res) => {
         res.status(500).json({status: "error",error: err.message });
     }
 };
-
 
 // Get all Expenses
 exports.getAllExpenses = async (req, res) => {

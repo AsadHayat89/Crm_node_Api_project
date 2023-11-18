@@ -57,7 +57,7 @@ router.get('/api/employees',upload.any(), employeeController.getAllEmployees);
 
 router.get('/api/getEmployeeById', upload.any(), employeeController.getEmployeeById);
 
-router.put('/api/employee/:id', upload.any(),employeeController.updateEmployee);
+router.put('/api/employee/:id', upload.single("image"),employeeController.updateEmployee);
 
 router.delete('/api/employee/:id', employeeController.deleteEmployee);
 
@@ -69,7 +69,7 @@ router.get('/api/Customer',upload.any(), customerController.getAllCustomers);
 
 router.get('/api/getCustomerById', upload.any(), customerController.getCustomerByCNIC);
 
-router.put('/api/Customer/:id', upload.any(),customerController.updateCustomer);
+router.put('/api/Customer/:id', upload.single("image"),customerController.updateCustomer);
 
 router.delete('/api/Customer/:id', customerController.deleteCustomer);
 
@@ -93,9 +93,9 @@ router.post('/api/getEmployeeBounusTotal',upload.any(),profitController.getProfi
 
 router.post('/api/expenses',upload.single("image"), expenseController.createExpense);
 
-router.get('/api/expenses/total/current-month', expenseController.getTotalExpensesForCurrentMonth);
+router.get('/api/expenses/total/current-month', expenseController.getTotalCurrencyForMonth);
 
-router.get('/api/expenses', expenseController.getAllExpenses);
+router.get('/api/expenses',upload.any(), expenseController.getTotalExpensesForCurrentMonth);
 router.get('/expenses/:id', expenseController.getExpenseById);
 router.put('/expenses/:id', expenseController.updateExpense);
 router.delete('/expenses/:id', expenseController.deleteExpense);
@@ -107,11 +107,13 @@ router.post('/api/deals',upload.single("image"), DealController.createDeal);
 // Get a list of all Deals
 router.get('/api/deals', DealController.getAllDeals);
 
+router.get('/api/getDealsByCnic/:id',DealController.findEmployeesDeals);
+
 // Get a single Deal by ID
 router.get('/api/deals/:id', DealController.getDealById);
 
 // Update a Deal by ID
-router.put('/api/deals/:id', DealController.updateDeal);
+router.put('/api/deals/:id',upload.single("image"), DealController.updateDeal);
 
 // Delete a Deal by ID
 router.delete('/api/deals/:id', DealController.deleteDeal);

@@ -7,10 +7,8 @@ const path = require('path');
 const createEmployee = async (req, res) => {
   try {
     // Check if an employee with the provided CNIC already exists
-    console.log("image");
     var image = req.file;
     var outputDirectory = directryPath();
-    console.log("image2");
     new Promise((resolve, reject) => {
       const ImageName = convertImage(image.originalname);
       const imagePath = path.join(outputDirectory, ImageName);
@@ -25,7 +23,7 @@ const createEmployee = async (req, res) => {
         Employee.findOne({ cnic: req.body.cnic }).then(
           existingEmployee => {
             if (existingEmployee) {
-              return res.status(400).json({ status:"error",error: 'Employee with the provided CNIC already exists' });
+              return res.status(400).json({ status: "error", error: 'Employee with the provided CNIC already exists' });
             }
 
             // If no employee with the CNIC exists, create a new employee
@@ -33,10 +31,10 @@ const createEmployee = async (req, res) => {
             employee.save().then(
               result => {
                 if (result) {
-                  res.status(200).json({status:"success",responce:result});
+                  res.status(200).json({ status: "success", responce: result });
                 }
                 else {
-                  res.status(200).json({status:"error", error: "Data not saved" });
+                  res.status(200).json({ status: "error", error: "Data not saved" });
                 }
 
               }
@@ -49,7 +47,7 @@ const createEmployee = async (req, res) => {
 
 
   } catch (err) {
-    res.status(400).json({status:"error", error: err.message });
+    res.status(400).json({ status: "error", error: err.message });
   }
 };
 
@@ -75,9 +73,9 @@ const convertImage = (OriginalImage) => {
 const getAllEmployees = async (req, res) => {
   try {
     const employees = await Employee.find();
-    res.status(200).json({status:"success",responce:employees});
+    res.status(200).json({ status: "success", responce: employees });
   } catch (err) {
-    res.status(400).json({status:"error", error: err.message });
+    res.status(400).json({ status: "error", error: err.message });
   }
 };
 
@@ -100,13 +98,61 @@ const getEmployeeById = async (req, res) => {
 // Update an employee by ID
 const updateEmployee = async (req, res) => {
   try {
-    const employee = await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!employee) {
-      return res.status(404).json({ status: "error", error: 'Employee not found' });
+
+    if (req.file) {
+      var image = req.file;
+      var outputDirectory = directryPath();
+      new Promise((resolve, reject) => {
+        const ImageName = convertImage(image.originalname);
+        const imagePath = path.join(outputDirectory, ImageName);
+        fs.writeFileSync(imagePath, image.buffer, function (err) {
+          reject(err)
+        });
+
+        resolve(ImageName)
+      }).then(
+        ImageName => {
+          req.body.image = ImageName;
+          console.log("datea "+req.body.image);
+          const employee = Employee.findByIdAndUpdate(req.params.id, req.body, { new: true }).then(
+            (result) => {
+              if (!result) {
+                console.log("failed");
+                return res.status(404).json({ status: "error", error: 'Employee not found' });
+              }
+              else if(result){
+                console.log("succsss");
+                res.status(200).json({ status: "success", responce: employee });
+              }
+            
+            }
+          );
+
+        }
+      );
     }
-    res.status(200).json(employee);
+    else {
+      Employee.findById(req.params.id).then((respo) => {
+        req.body.image = respo.image;
+        console.log(req.body.image);
+        const employee = Employee.findByIdAndUpdate(req.params.id, req.body, { new: true }).then(
+          (result) => {
+            if (!result) {
+              return res.status(404).json({ status: "error", error: 'Employee not found' });
+            }
+            res.status(200).json({ status: "success", responce: employee });
+          }
+        );
+      });
+
+
+
+    }
+
+
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ status: "error", error: err.message });
   }
 };
 
@@ -117,7 +163,7 @@ const deleteEmployee = async (req, res) => {
     if (!employee) {
       return res.status(404).json({ status: "error", error: 'Employee not found' });
     }
-    res.status(200).json({ status: "success",responce:'success' });
+    res.status(200).json({ status: "success", responce: 'success' });
   } catch (err) {
     res.status(500).json({ status: "error", error: err.message });
   }
