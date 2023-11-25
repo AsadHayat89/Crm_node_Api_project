@@ -12,6 +12,8 @@ const dealSchema = new mongoose.Schema({
   },
   propertySize: String,
   rooms: String,
+  employeeProfit:String,
+  companyProfit:String,
   bedroom: String,
   bathroom: String,
   employeeCnic: Number,
@@ -24,6 +26,7 @@ const dealSchema = new mongoose.Schema({
   image:String,
   fileNumber: String,
   location: String,
+
   date: {
     type: Date,
     default: Date.now, // Assign the current date as the default value

@@ -21,6 +21,10 @@ const employeeSchema = new mongoose.Schema({
     type: String,
 
   },
+  designation: {
+    type: String,
+
+  },
   phone: {
     type: Number,
     required: true,

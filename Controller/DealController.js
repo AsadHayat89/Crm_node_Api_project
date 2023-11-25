@@ -2,6 +2,7 @@ const Deal = require('../Model/Deal');
 const fs = require('fs');
 const Profit = require('../Model/Profit');
 const path = require('path');
+const Customer = require('../Model/Customer');
 // Create a new deal
 const createDeal = async (req, res) => {
   try {
@@ -31,7 +32,20 @@ const createDeal = async (req, res) => {
                 employeeBonus: req.body.employeeProfit,
                 companyProfit: req.body.companyProfit
               };
+              const customerCnic=req.body.customerCnic;
+              console.log("cncin we goudn: "+customerCnic);
+              Customer.findOneAndUpdate(
+                { cnic:customerCnic },
+                { $inc: { noOfSold: 1 } }, // Increment the noOfSold property by one
+                { new: true } // Return the updated document
+              ).then(result=>{
+                if(result){
+                  console.log("updated succs "+result);
+                }
+              });
+              
 
+              
               const profit = new Profit(profitbody);
               const newProfit = profit.save().then(
                 result => {
@@ -145,7 +159,7 @@ const updateDeal = async (req, res) => {
             return res.status(404).json({ error: 'Deal not found' });
           }
 
-          res.status(200).json({status:"success"});
+          res.status(200).json({ status: "success" });
         }
       );
 
